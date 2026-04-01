@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QR ID System — Admin</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --border: #1e1e2e;
+    --accent: #00e5a0;
+    --accent2: #7b5ea7;
+    --text: #e8e8f0;
+    --muted: #5a5a72;
+    --danger: #ff4f6d;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Noise texture */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0;
+  }
+
+  header {
+    padding: 48px 60px 0;
+    position: relative; z-index: 1;
+    display: flex; align-items: flex-end; justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 32px;
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(28px, 4vw, 48px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  h1 span { color: var(--accent); }
+
+  .subtitle {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    margin-top: 8px;
+  }
+
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 48px 60px;
+    position: relative; z-index: 1;
+  }
+
+  .input-section {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 32px;
+    margin-bottom: 48px;
+  }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+  }
+
+  .panel-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+
+  textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    padding: 16px;
+    resize: vertical;
+    min-height: 220px;
+    outline: none;
+    transition: border-color 0.2s;
+    line-height: 1.7;
+  }
+
+  textarea:focus { border-color: var(--accent); }
+
+  .format-hint {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 10px;
+    line-height: 1.6;
+  }
+
+  .format-hint code {
+    background: var(--border);
+    padding: 1px 6px;
+    border-radius: 4px;
+    color: var(--accent);
+  }
+
+  .add-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  input[type="text"], input[type="email"] {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    padding: 12px 14px;
+    outline: none;
+    width: 100%;
+    transition: border-color 0.2s;
+  }
+
+  input:focus { border-color: var(--accent); }
+  input::placeholder { color: var(--muted); }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    border: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #000;
+  }
+  .btn-primary:hover { background: #00ffb3; transform: translateY(-1px); }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    margin-top: 8px;
+  }
+  .btn-secondary:hover { background: rgba(0,229,160,0.08); }
+
+  .btn-generate {
+    background: linear-gradient(135deg, var(--accent), #00b8ff);
+    color: #000;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 16px;
+    border-radius: 12px;
+    margin-top: 24px;
+    letter-spacing: 0.05em;
+    box-shadow: 0 0 32px rgba(0,229,160,0.15);
+  }
+  .btn-generate:hover { transform: translateY(-2px); box-shadow: 0 0 48px rgba(0,229,160,0.25); }
+
+  /* Results grid */
+  .results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .results-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 20px;
+  }
+
+  .count-badge {
+    background: var(--border);
+    color: var(--muted);
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 20px;
+  }
+
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+
+  .user-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    transition: border-color 0.2s, transform 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .user-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), #00b8ff);
+    transform: scaleX(0);
+    transition: transform 0.3s;
+  }
+
+  .user-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .user-card:hover::before { transform: scaleX(1); }
+
+  .card-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    margin-bottom: 4px;
+  }
+
+  .card-email {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 20px;
+    word-break: break-all;
+  }
+
+  .qr-container {
+    background: #fff;
+    border-radius: 10px;
+    padding: 12px;
+    display: inline-block;
+    margin-bottom: 16px;
+  }
+
+  .qr-container canvas, .qr-container img {
+    display: block;
+    width: 120px !important;
+    height: 120px !important;
+  }
+
+  .card-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 10px;
+    color: var(--muted);
+    word-break: break-all;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    margin-bottom: 10px;
+  }
+
+  .card-link:hover { border-color: var(--accent); color: var(--accent); }
+
+  .copy-icon { font-size: 14px; flex-shrink: 0; }
+
+  .card-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn-small {
+    flex: 1;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.05em;
+  }
+
+  .btn-small:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-small.open:hover { border-color: #00b8ff; color: #00b8ff; }
+
+  .copied-toast {
+    position: fixed;
+    bottom: 32px; right: 32px;
+    background: var(--accent);
+    color: #000;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 12px 24px;
+    border-radius: 30px;
+    transform: translateY(80px);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 100;
+  }
+  .copied-toast.show { transform: translateY(0); }
+
+  #results { display: none; }
+
+  @media (max-width: 768px) {
+    header, main { padding: 24px; }
+    .input-section { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">QR·ID System</div>
+    <h1>Generate <span>QR Codes</span><br>for your users</h1>
+    <p class="subtitle">// Paste a list · Generate · Share links</p>
+  </div>
+</header>
+
+<main>
+  <div class="input-section">
+    <!-- Bulk paste -->
+    <div class="panel">
+      <div class="panel-title">// Paste user list</div>
+      <textarea id="bulkInput" placeholder="Ahmed Al-Rashid, ahmed@company.com&#10;Sara Johnson, sara@example.com&#10;Mohammed Al-Farsi, mfarsi@work.net&#10;..."></textarea>
+      <p class="format-hint">
+        One user per line: <code>Name, email@address.com</code><br>
+        Supports comma, tab, or pipe ( | ) separators.
+      </p>
+    </div>
+
+    <!-- Manual add -->
+    <div class="panel">
+      <div class="panel-title">// Add manually</div>
+      <div class="add-row">
+        <input type="text" id="manualName" placeholder="Full name">
+        <input type="email" id="manualEmail" placeholder="email@example.com">
+      </div>
+      <button class="btn btn-primary" onclick="addManual()">+ Add to list</button>
+
+      <div id="manualList" style="margin-top:20px;"></div>
+
+      <button class="btn btn-generate" onclick="generateAll()">
+        ⚡ Generate QR Codes
+      </button>
+      <button class="btn btn-secondary" onclick="clearAll()">Clear all</button>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div id="results">
+    <div class="results-header">
+      <div class="results-title">Generated Codes</div>
+      <span class="count-badge" id="countBadge">0 users</span>
+    </div>
+    <div class="cards-grid" id="cardsGrid"></div>
+  </div>
+</main>
+
+<div class="copied-toast" id="toast">Link copied!</div>
+
+<script>
+  let manualUsers = [];
+
+  function addManual() {
+    const name = document.getElementById('manualName').value.trim();
+    const email = document.getElementById('manualEmail').value.trim();
+    if (!name || !email) return;
+    manualUsers.push({ name, email });
+    document.getElementById('manualName').value = '';
+    document.getElementById('manualEmail').value = '';
+    renderManualList();
+  }
+
+  function renderManualList() {
+    const el = document.getElementById('manualList');
+    el.innerHTML = manualUsers.map((u, i) => `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
+        <div>
+          <div style="font-size:12px;font-family:'Syne',sans-serif;font-weight:700;">${u.name}</div>
+          <div style="font-size:10px;color:var(--muted);">${u.email}</div>
+        </div>
+        <button onclick="removeManual(${i})" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:16px;">×</button>
+      </div>
+    `).join('');
+  }
+
+  function removeManual(i) {
+    manualUsers.splice(i, 1);
+    renderManualList();
+  }
+
+  function parseBulk() {
+    const raw = document.getElementById('bulkInput').value.trim();
+    if (!raw) return [];
+    return raw.split('\n')
+      .map(line => line.trim())
+      .filter(Boolean)
+      .map(line => {
+        const parts = line.split(/[,|\t]/).map(s => s.trim());
+        if (parts.length >= 2) return { name: parts[0], email: parts[1] };
+        return null;
+      })
+      .filter(Boolean);
+  }
+
+  function generateAll() {
+    const bulkUsers = parseBulk();
+    const allUsers = [...bulkUsers, ...manualUsers];
+    if (!allUsers.length) { alert('Please add at least one user.'); return; }
+
+    const grid = document.getElementById('cardsGrid');
+    grid.innerHTML = '';
+    document.getElementById('results').style.display = 'block';
+    document.getElementById('countBadge').textContent = `${allUsers.length} user${allUsers.length !== 1 ? 's' : ''}`;
+
+    allUsers.forEach((user, idx) => {
+      const profileUrl = buildProfileUrl(user.name, user.email);
+      const card = document.createElement('div');
+      card.className = 'user-card';
+      card.innerHTML = `
+        <div class="card-name">${escapeHtml(user.name)}</div>
+        <div class="card-email">${escapeHtml(user.email)}</div>
+        <div class="qr-container" id="qr-${idx}"></div>
+        <div class="card-link" onclick="copyLink('${escapeAttr(profileUrl)}')">
+          <span class="copy-icon">⎘</span>
+          <span>${profileUrl}</span>
+        </div>
+        <div class="card-actions">
+          <button class="btn-small" onclick="copyLink('${escapeAttr(profileUrl)}')">Copy link</button>
+          <button class="btn-small open" onclick="window.open('${escapeAttr(profileUrl)}','_blank')">Open page</button>
+          <button class="btn-small" onclick="downloadQR(${idx},'${escapeAttr(user.name)}')">Download QR</button>
+        </div>
+      `;
+      grid.appendChild(card);
+
+      setTimeout(() => {
+        new QRCode(document.getElementById(`qr-${idx}`), {
+          text: profileUrl,
+          width: 120,
+          height: 120,
+          colorDark: '#000000',
+          colorLight: '#ffffff',
+          correctLevel: QRCode.CorrectLevel.H
+        });
+      }, 50);
+    });
+
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function buildProfileUrl(name, email) {
+    const base = window.location.href.replace('index.html', '').replace(/\/$/, '');
+    const profileBase = base + '/profile.html';
+    const params = new URLSearchParams({ name, email });
+    return `${profileBase}?${params.toString()}`;
+  }
+
+  function copyLink(url) {
+    navigator.clipboard.writeText(url).then(() => showToast('Link copied!'));
+  }
+
+  function downloadQR(idx, name) {
+    const container = document.getElementById(`qr-${idx}`);
+    const canvas = container.querySelector('canvas');
+    if (!canvas) { showToast('QR not ready yet'); return; }
+    const link = document.createElement('a');
+    link.download = `qr-${name.replace(/\s+/g, '-')}.png`;
+    link.href = canvas.toDataURL();
+    link.click();
+  }
+
+  function clearAll() {
+    manualUsers = [];
+    renderManualList();
+    document.getElementById('bulkInput').value = '';
+    document.getElementById('results').style.display = 'none';
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
+  function escapeHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function escapeAttr(s) {
+    return s.replace(/'/g, "\\'");
+  }
+
+  // Allow Enter key in manual inputs
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('manualEmail').addEventListener('keydown', e => {
+      if (e.key === 'Enter') addManual();
+    });
+  });
+</script>
+</body>
+</html>

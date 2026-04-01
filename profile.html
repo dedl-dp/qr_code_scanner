@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --border: #1e1e2e;
+    --accent: #00e5a0;
+    --text: #e8e8f0;
+    --muted: #5a5a72;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  /* Animated background */
+  .bg-orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.12;
+    animation: drift 8s ease-in-out infinite alternate;
+  }
+
+  .bg-orb-1 {
+    width: 500px; height: 500px;
+    background: var(--accent);
+    top: -100px; left: -100px;
+  }
+
+  .bg-orb-2 {
+    width: 400px; height: 400px;
+    background: #7b5ea7;
+    bottom: -100px; right: -100px;
+    animation-delay: -4s;
+  }
+
+  @keyframes drift {
+    from { transform: translate(0, 0) scale(1); }
+    to   { transform: translate(30px, 20px) scale(1.05); }
+  }
+
+  /* Noise */
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0;
+  }
+
+  .card {
+    position: relative;
+    z-index: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 52px 48px;
+    max-width: 440px;
+    width: 90%;
+    text-align: center;
+    animation: appear 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    box-shadow: 0 0 80px rgba(0,229,160,0.05), 0 40px 80px rgba(0,0,0,0.4);
+  }
+
+  @keyframes appear {
+    from { opacity: 0; transform: translateY(24px) scale(0.95); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 24px; right: 24px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  }
+
+  .scan-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(0,229,160,0.1);
+    border: 1px solid rgba(0,229,160,0.2);
+    color: var(--accent);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 20px;
+    margin-bottom: 36px;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(0,229,160,0.3); }
+    50%       { box-shadow: 0 0 0 8px rgba(0,229,160,0); }
+  }
+
+  .dot {
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .avatar {
+    width: 96px; height: 96px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #00b8ff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 28px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 36px;
+    color: #000;
+    position: relative;
+  }
+
+  .avatar::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #00b8ff);
+    z-index: -1;
+    filter: blur(10px);
+    opacity: 0.4;
+  }
+
+  .name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(24px, 6vw, 32px);
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+    line-height: 1.1;
+  }
+
+  .email-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 20px;
+    margin: 20px 0 32px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .email-row:hover {
+    border-color: var(--accent);
+    background: rgba(0,229,160,0.04);
+  }
+
+  .email-icon { font-size: 16px; flex-shrink: 0; }
+
+  .email-text {
+    font-size: 13px;
+    color: var(--text);
+    word-break: break-all;
+    text-align: left;
+  }
+
+  .copy-hint {
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    flex-shrink: 0;
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 0 0 24px;
+  }
+
+  .meta {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    line-height: 1.8;
+  }
+
+  .error-state {
+    text-align: center;
+    padding: 40px;
+  }
+
+  .error-icon { font-size: 48px; margin-bottom: 16px; }
+
+  .error-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    margin-bottom: 8px;
+  }
+
+  .error-msg { font-size: 12px; color: var(--muted); }
+
+  .copied-pill {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(60px);
+    background: var(--accent);
+    color: #000;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    padding: 10px 24px;
+    border-radius: 30px;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 10;
+  }
+  .copied-pill.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="bg-orb bg-orb-1"></div>
+<div class="bg-orb bg-orb-2"></div>
+
+<div class="card" id="card">
+  <!-- Filled by JS -->
+</div>
+
+<div class="copied-pill" id="pill">✓ Email copied</div>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const name  = params.get('name')  || '';
+  const email = params.get('email') || '';
+  const card  = document.getElementById('card');
+
+  if (!name && !email) {
+    card.innerHTML = `
+      <div class="error-state">
+        <div class="error-icon">⚠️</div>
+        <div class="error-title">No profile data</div>
+        <p class="error-msg">This link doesn't contain user information.<br>Please scan a valid QR code.</p>
+      </div>
+    `;
+  } else {
+    const initials = name
+      .split(/\s+/)
+      .slice(0, 2)
+      .map(w => w[0]?.toUpperCase() || '')
+      .join('');
+
+    document.title = name ? `${name} — Profile` : 'Profile';
+
+    card.innerHTML = `
+      <div class="scan-badge"><span class="dot"></span> Verified Profile</div>
+      <div class="avatar">${initials || '?'}</div>
+      <div class="name">${escapeHtml(name) || '—'}</div>
+      <div class="email-row" onclick="copyEmail()">
+        <span class="email-icon">✉</span>
+        <span class="email-text">${escapeHtml(email) || '—'}</span>
+        <span class="copy-hint">tap to copy</span>
+      </div>
+      <div class="divider"></div>
+      <div class="meta">
+        QR·ID System · Scanned ${new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'})}
+      </div>
+    `;
+  }
+
+  function copyEmail() {
+    if (!email) return;
+    navigator.clipboard.writeText(email).then(() => {
+      const p = document.getElementById('pill');
+      p.classList.add('show');
+      setTimeout(() => p.classList.remove('show'), 2000);
+    });
+  }
+
+  function escapeHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+</script>
+</body>
+</html>
