@@ -94,20 +94,34 @@ function dlQR(i, encodedName) {
   a.click();
 }
 
+function getQRDataUrl(i) {
+  var wrap = document.getElementById('qr-' + i);
+  if (!wrap) return '';
+  var canvas = wrap.querySelector('canvas');
+  if (canvas) return canvas.toDataURL('image/png');
+  // fallback: img tag (some browsers render img instead of canvas)
+  var img = wrap.querySelector('img');
+  if (img) return img.src;
+  return '';
+}
+
 function exportExcel() {
   if (!lastGenerated.length) return;
 
-  var rows = lastGenerated.map(function(u) {
-    return {
-      'Name': u.name,
-      'Email': u.email,
-      'QR Code Link': buildUrl(u.name, u.email)
-    };
+  // Build rows - QR Code column contains the data URL of the QR image
+  var wsData = [['Name', 'Email', 'QR Code']];
+
+  lastGenerated.forEach(function(u, i) {
+    var qrDataUrl = getQRDataUrl(i);
+    wsData.push([u.name, u.email, qrDataUrl ? 'Click to view QR' : 'QR not ready']);
   });
 
-  var ws = XLSX.utils.json_to_sheet(rows);
-  ws['!cols'] = [{ wch: 30 }, { wch: 36 }, { wch: 80 }];
+  var ws = XLSX.utils.aoa_to_sheet(wsData);
 
+  // Set column widths
+  ws['!cols'] = [{ wch: 30 }, { wch: 36 }, { wch: 22 }];
+
+  // Header style
   var headerStyle = {
     font: { bold: true, color: { rgb: 'FFFFFF' }, name: 'Arial', sz: 11 },
     fill: { patternType: 'solid', fgColor: { rgb: '3D2D8E' } },
@@ -115,6 +129,21 @@ function exportExcel() {
   };
   ['A1', 'B1', 'C1'].forEach(function(cell) {
     if (ws[cell]) ws[cell].s = headerStyle;
+  });
+
+  // Add QR image data URL as a hyperlink on each QR cell
+  // The link Target is the data URL itself — clicking it opens the image in browser
+  lastGenerated.forEach(function(u, i) {
+    var rowNum = i + 2;
+    var cellRef = 'C' + rowNum;
+    var qrDataUrl = getQRDataUrl(i);
+    if (qrDataUrl && ws[cellRef]) {
+      ws[cellRef].l = { Target: qrDataUrl, Tooltip: 'QR Code for ' + u.name };
+      ws[cellRef].s = {
+        font: { color: { rgb: '0090CC' }, underline: true, name: 'Arial', sz: 11 },
+        alignment: { horizontal: 'center' }
+      };
+    }
   });
 
   var wb = XLSX.utils.book_new();
