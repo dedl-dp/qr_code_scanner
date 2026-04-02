@@ -1,6 +1,15 @@
 var manual = [];
 var lastGenerated = [];
 
+// ── Tab switching ────────────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.getElementById('tab-' + name).classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+}
+
+// ── Manual list ──────────────────────────────────────────────────────────────
 function addManual() {
   var n = document.getElementById('mName').value.trim();
   var e = document.getElementById('mEmail').value.trim();
@@ -20,6 +29,7 @@ function renderManual() {
   }).join('');
 }
 
+// ── Parse bulk textarea ──────────────────────────────────────────────────────
 function parseBulk() {
   var raw = document.getElementById('bulkInput').value.trim();
   if (!raw) return [];
@@ -29,20 +39,26 @@ function parseBulk() {
   }).filter(Boolean);
 }
 
+// ── Generate all ─────────────────────────────────────────────────────────────
 function generateAll() {
   var all = parseBulk().concat(manual);
   if (!all.length) { alert('Please add at least one user.'); return; }
 
+  lastGenerated = all;
+
   var grid = document.getElementById('cardsGrid');
+  var profilesGrid = document.getElementById('profilesGrid');
   grid.innerHTML = '';
+  profilesGrid.innerHTML = '';
+
   document.getElementById('results').style.display = 'block';
   document.getElementById('cntBadge').textContent = all.length + ' user' + (all.length !== 1 ? 's' : '');
-
-  lastGenerated = all;
 
   all.forEach(function(u, i) {
     var profileUrl = buildProfileUrl(u.name, u.email);
     var ini = u.name.split(/\s+/).slice(0, 2).map(function(w) { return w[0] ? w[0].toUpperCase() : ''; }).join('');
+
+    // ── QR card ──
     var card = document.createElement('div');
     card.className = 'card';
     card.style.animationDelay = (i * 0.05) + 's';
@@ -58,6 +74,24 @@ function generateAll() {
         '<button class="c-btn" onclick="dlQR(' + i + ',this.dataset.name)" data-name="' + encodeURIComponent(u.name) + '">⬇ QR</button>' +
       '</div>';
     grid.appendChild(card);
+
+    // ── Profile card ──
+    var pc = document.createElement('div');
+    pc.className = 'profile-card';
+    pc.style.animationDelay = (i * 0.05) + 's';
+    pc.innerHTML =
+      '<div class="p-scan-tag"><span class="p-dot"></span> Verified Profile</div>' +
+      '<div class="p-avatar">' + ini + '</div>' +
+      '<div class="p-name">' + h(u.name) + '</div>' +
+      '<div class="p-email-box" onclick="cp(this.dataset.email)" data-email="' + encodeURIComponent(u.email) + '">' +
+        '<div class="p-email-icon">✉</div>' +
+        '<span class="p-email-text">' + h(u.email) + '</span>' +
+        '<span class="p-copy-hint">tap to copy</span>' +
+      '</div>' +
+      '<a class="p-open-btn" href="' + profileUrl + '" target="_blank">↗ Open Profile Page</a>';
+    profilesGrid.appendChild(pc);
+
+    // Generate QR code
     (function(idx) {
       setTimeout(function() {
         new QRCode(document.getElementById('qr-' + idx), {
@@ -70,27 +104,29 @@ function generateAll() {
   });
 
   document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  switchTab('qr');
 }
 
-// Profile page URL — what the QR encodes and what scanning opens
+// ── URL builders ─────────────────────────────────────────────────────────────
 function buildProfileUrl(name, email) {
   var base = window.location.href.replace('index.html', '').replace(/\/$/, '');
   return base + '/profile.html?' + new URLSearchParams({ name: name, email: email }).toString();
 }
 
-// QR page URL — what the Excel link opens (shows + lets user download the QR image)
 function buildQRPageUrl(name, email) {
   var base = window.location.href.replace('index.html', '').replace(/\/$/, '');
   return base + '/qr.html?' + new URLSearchParams({ name: name, email: email }).toString();
 }
 
-function cp(encodedUrl) {
-  var url = decodeURIComponent(encodedUrl);
-  navigator.clipboard.writeText(url).then(function() {
+// ── Clipboard copy ───────────────────────────────────────────────────────────
+function cp(encoded) {
+  var val = decodeURIComponent(encoded);
+  navigator.clipboard.writeText(val).then(function() {
     showToast('✓ Copied to clipboard');
   });
 }
 
+// ── Download single QR ───────────────────────────────────────────────────────
 function dlQR(i, encodedName) {
   var name = decodeURIComponent(encodedName);
   var c = document.getElementById('qr-' + i).querySelector('canvas');
@@ -101,14 +137,12 @@ function dlQR(i, encodedName) {
   a.click();
 }
 
+// ── Export Excel ─────────────────────────────────────────────────────────────
 function exportExcel() {
   if (!lastGenerated.length) return;
 
-  // Header row
   var wsData = [['Name', 'Email', 'QR Code']];
 
-  // Each row: Name, Email, HYPERLINK to qr.html?name=...&email=...
-  // Clicking opens a page that shows the QR image with a Download button
   lastGenerated.forEach(function(u) {
     var qrPageUrl = buildQRPageUrl(u.name, u.email);
     wsData.push([
@@ -119,11 +153,8 @@ function exportExcel() {
   });
 
   var ws = XLSX.utils.aoa_to_sheet(wsData);
-
-  // Column widths
   ws['!cols'] = [{ wch: 30 }, { wch: 36 }, { wch: 28 }];
 
-  // Header style — dark purple
   var headerStyle = {
     font: { bold: true, color: { rgb: 'FFFFFF' }, name: 'Arial', sz: 11 },
     fill: { patternType: 'solid', fgColor: { rgb: '3D2D8E' } },
@@ -133,7 +164,6 @@ function exportExcel() {
     if (ws[cell]) ws[cell].s = headerStyle;
   });
 
-  // Link cell style — blue underline
   lastGenerated.forEach(function(u, i) {
     var cellRef = 'C' + (i + 2);
     if (ws[cellRef]) {
@@ -147,17 +177,21 @@ function exportExcel() {
   var wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'QR Codes');
   XLSX.writeFile(wb, 'QR_Users.xlsx');
-
   showToast('✓ Excel downloaded!');
 }
 
+// ── Clear all ────────────────────────────────────────────────────────────────
 function clearAll() {
   manual = [];
   renderManual();
   document.getElementById('bulkInput').value = '';
   document.getElementById('results').style.display = 'none';
+  document.getElementById('cardsGrid').innerHTML = '';
+  document.getElementById('profilesGrid').innerHTML = '';
+  lastGenerated = [];
 }
 
+// ── Toast ────────────────────────────────────────────────────────────────────
 function showToast(msg) {
   var t = document.getElementById('toast');
   t.textContent = msg;
@@ -165,6 +199,7 @@ function showToast(msg) {
   setTimeout(function() { t.classList.remove('show'); }, 2200);
 }
 
+// ── HTML escape ──────────────────────────────────────────────────────────────
 function h(s) {
   return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
