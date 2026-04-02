@@ -5,15 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Profile</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Poppins:wght@300;400;500;600&display=swap');
 
   :root {
-    --bg: #0a0a0f;
-    --surface: #111118;
-    --border: #1e1e2e;
-    --accent: #00e5a0;
-    --text: #e8e8f0;
-    --muted: #5a5a72;
+    --bg: #f4f3fc;
+    --white: #ffffff;
+    --border: #dddaf2;
+    --accent: #1bb8f0;
+    --accent-dark: #0090cc;
+    --purple: #7b6fba;
+    --purple-light: #eae8f7;
+    --purple-dark: #3d2d8e;
+    --navy: #2b1f72;
+    --text: #2e2b4a;
+    --muted: #8e8aac;
+    --shadow: rgba(123, 111, 186, 0.15);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -21,282 +27,304 @@
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: 'DM Mono', monospace;
+    font-family: 'Poppins', sans-serif;
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
     overflow: hidden;
   }
 
-  /* Animated background */
-  .bg-orb {
-    position: fixed;
-    border-radius: 50%;
-    filter: blur(80px);
-    opacity: 0.12;
-    animation: drift 8s ease-in-out infinite alternate;
-  }
-
-  .bg-orb-1 {
-    width: 500px; height: 500px;
-    background: var(--accent);
-    top: -100px; left: -100px;
-  }
-
-  .bg-orb-2 {
-    width: 400px; height: 400px;
-    background: #7b5ea7;
-    bottom: -100px; right: -100px;
-    animation-delay: -4s;
-  }
-
-  @keyframes drift {
-    from { transform: translate(0, 0) scale(1); }
-    to   { transform: translate(30px, 20px) scale(1.05); }
-  }
-
-  /* Noise */
-  body::after {
+  /* Diagonal split background */
+  body::before {
     content: '';
-    position: fixed; inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none; z-index: 0;
+    position: fixed;
+    top: 0; right: 0;
+    width: 55%;
+    height: 100%;
+    background: linear-gradient(150deg, #b3aae0 0%, #8776cc 50%, #6554b8 100%);
+    clip-path: polygon(20% 0%, 100% 0%, 100% 100%, 0% 100%);
+    z-index: 0;
+    opacity: 0.15;
+    pointer-events: none;
   }
 
+  /* Floating decorative shapes */
+  .deco {
+    position: fixed;
+    border-radius: 16px;
+    opacity: 0.07;
+    pointer-events: none;
+  }
+  .deco-1 {
+    width: 80px; height: 80px;
+    background: var(--accent);
+    top: 60px; right: 120px;
+    transform: rotate(15deg);
+    animation: float1 6s ease-in-out infinite alternate;
+  }
+  .deco-2 {
+    width: 60px; height: 60px;
+    background: var(--purple-dark);
+    bottom: 80px; right: 60px;
+    border-radius: 50%;
+    animation: float2 7s ease-in-out infinite alternate;
+  }
+  .deco-3 {
+    width: 48px; height: 48px;
+    background: var(--accent);
+    bottom: 140px; left: 80px;
+    transform: rotate(45deg);
+    animation: float1 5s ease-in-out infinite alternate;
+  }
+
+  @keyframes float1 { from { transform: rotate(15deg) translateY(0); } to { transform: rotate(15deg) translateY(-18px); } }
+  @keyframes float2 { from { transform: translateY(0); } to { transform: translateY(-14px); } }
+
+  /* Card */
   .card {
     position: relative;
     z-index: 1;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 24px;
-    padding: 52px 48px;
-    max-width: 440px;
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 28px;
+    padding: 52px 44px 40px;
+    max-width: 420px;
     width: 90%;
     text-align: center;
-    animation: appear 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-    box-shadow: 0 0 80px rgba(0,229,160,0.05), 0 40px 80px rgba(0,0,0,0.4);
+    box-shadow: 0 20px 60px var(--shadow), 0 2px 8px rgba(27,184,240,0.08);
+    animation: appear 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    overflow: hidden;
   }
 
   @keyframes appear {
-    from { opacity: 0; transform: translateY(24px) scale(0.95); }
-    to   { opacity: 1; transform: translateY(0) scale(1); }
+    from { opacity: 0; transform: translateY(28px) scale(0.95); }
+    to   { opacity: 1; transform: none; }
   }
 
+  /* Top gradient bar */
   .card::before {
     content: '';
     position: absolute;
-    top: 0; left: 24px; right: 24px;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent), var(--purple), var(--navy));
   }
 
-  .scan-badge {
+  /* Subtle inner pattern */
+  .card::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; right: -40px;
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    background: var(--purple-light);
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .scan-tag {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    background: rgba(0,229,160,0.1);
-    border: 1px solid rgba(0,229,160,0.2);
-    color: var(--accent);
+    gap: 7px;
+    background: rgba(27,184,240,0.1);
+    border: 1.5px solid rgba(27,184,240,0.2);
+    color: var(--accent-dark);
     font-size: 10px;
-    font-weight: 500;
-    letter-spacing: 0.15em;
+    font-weight: 700;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
     padding: 6px 14px;
     border-radius: 20px;
-    margin-bottom: 36px;
-    animation: pulse 2s ease-in-out infinite;
+    margin-bottom: 32px;
   }
 
-  @keyframes pulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(0,229,160,0.3); }
-    50%       { box-shadow: 0 0 0 8px rgba(0,229,160,0); }
-  }
-
-  .dot {
-    width: 6px; height: 6px;
+  .pulse-dot {
+    width: 7px; height: 7px;
     background: var(--accent);
     border-radius: 50%;
+    animation: pulse 1.8s ease-in-out infinite;
     display: inline-block;
+  }
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(27,184,240,0.5); }
+    50%      { box-shadow: 0 0 0 6px rgba(27,184,240,0); }
   }
 
   .avatar {
     width: 96px; height: 96px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent), #00b8ff);
+    border-radius: 24px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--purple) 60%, var(--navy) 100%);
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 28px;
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
+    margin: 0 auto 24px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
     font-size: 36px;
-    color: #000;
-    position: relative;
-  }
-
-  .avatar::after {
-    content: '';
-    position: absolute;
-    inset: -3px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent), #00b8ff);
-    z-index: -1;
-    filter: blur(10px);
-    opacity: 0.4;
+    color: #fff;
+    box-shadow: 0 8px 28px rgba(27,184,240,0.3);
+    position: relative; z-index: 1;
   }
 
   .name {
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    font-size: clamp(24px, 6vw, 32px);
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: clamp(22px, 6vw, 30px);
+    color: var(--navy);
     letter-spacing: -0.02em;
-    margin-bottom: 12px;
-    line-height: 1.1;
+    line-height: 1.15;
+    margin-bottom: 6px;
+    position: relative; z-index: 1;
   }
 
-  .email-row {
+  .role-line {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 24px;
+    font-weight: 500;
+  }
+
+  .email-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 18px;
+    margin-bottom: 28px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+    position: relative; z-index: 1;
+    text-align: left;
+  }
+  .email-box:hover {
+    border-color: var(--accent);
+    background: rgba(27,184,240,0.04);
+    box-shadow: 0 4px 16px rgba(27,184,240,0.12);
+  }
+
+  .email-icon {
+    width: 36px; height: 36px;
+    background: var(--purple-light);
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 14px 20px;
-    margin: 20px 0 32px;
-    cursor: pointer;
-    transition: border-color 0.2s, background 0.2s;
+    font-size: 16px;
+    flex-shrink: 0;
+    color: var(--purple);
   }
-
-  .email-row:hover {
-    border-color: var(--accent);
-    background: rgba(0,229,160,0.04);
-  }
-
-  .email-icon { font-size: 16px; flex-shrink: 0; }
 
   .email-text {
+    flex: 1;
     font-size: 13px;
+    font-weight: 500;
     color: var(--text);
     word-break: break-all;
-    text-align: left;
   }
 
   .copy-hint {
     font-size: 9px;
     color: var(--muted);
-    letter-spacing: 0.08em;
+    letter-spacing: 0.07em;
     flex-shrink: 0;
+    text-transform: uppercase;
+    font-weight: 600;
   }
 
   .divider {
     height: 1px;
     background: var(--border);
-    margin: 0 0 24px;
+    margin: 0 0 20px;
+    position: relative; z-index: 1;
   }
 
-  .meta {
+  .footer-meta {
     font-size: 10px;
     color: var(--muted);
-    letter-spacing: 0.08em;
-    line-height: 1.8;
+    letter-spacing: 0.06em;
+    position: relative; z-index: 1;
   }
 
-  .error-state {
-    text-align: center;
-    padding: 40px;
-  }
+  /* Error */
+  .error-state { padding: 20px; }
+  .err-icon { font-size: 48px; margin-bottom: 16px; }
+  .err-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:20px; color:var(--navy); margin-bottom:8px; }
+  .err-msg { font-size:12px; color:var(--muted); line-height:1.6; }
 
-  .error-icon { font-size: 48px; margin-bottom: 16px; }
-
-  .error-title {
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: 20px;
-    margin-bottom: 8px;
-  }
-
-  .error-msg { font-size: 12px; color: var(--muted); }
-
-  .copied-pill {
+  /* Pill toast */
+  #pill {
     position: fixed;
-    bottom: 24px;
-    left: 50%;
+    bottom: 24px; left: 50%;
     transform: translateX(-50%) translateY(60px);
-    background: var(--accent);
-    color: #000;
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
+    background: linear-gradient(135deg, var(--navy), var(--purple));
+    color: #fff;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
     font-size: 12px;
-    padding: 10px 24px;
+    padding: 11px 26px;
     border-radius: 30px;
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    z-index: 10;
+    box-shadow: 0 8px 24px rgba(61,45,142,0.3);
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    z-index: 100;
   }
-  .copied-pill.show { transform: translateX(-50%) translateY(0); }
+  #pill.show { transform: translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
 
-<div class="bg-orb bg-orb-1"></div>
-<div class="bg-orb bg-orb-2"></div>
+<div class="deco deco-1"></div>
+<div class="deco deco-2"></div>
+<div class="deco deco-3"></div>
 
-<div class="card" id="card">
-  <!-- Filled by JS -->
-</div>
-
-<div class="copied-pill" id="pill">✓ Email copied</div>
+<div class="card" id="card"></div>
+<div id="pill">✓ Email copied!</div>
 
 <script>
-  const params = new URLSearchParams(window.location.search);
-  const name  = params.get('name')  || '';
-  const email = params.get('email') || '';
+  const p = new URLSearchParams(window.location.search);
+  const name  = p.get('name')  || '';
+  const email = p.get('email') || '';
   const card  = document.getElementById('card');
 
   if (!name && !email) {
     card.innerHTML = `
       <div class="error-state">
-        <div class="error-icon">⚠️</div>
-        <div class="error-title">No profile data</div>
-        <p class="error-msg">This link doesn't contain user information.<br>Please scan a valid QR code.</p>
-      </div>
-    `;
+        <div class="err-icon">⚠️</div>
+        <div class="err-title">No profile data</div>
+        <p class="err-msg">This link doesn't contain user information.<br>Please scan a valid QR code.</p>
+      </div>`;
   } else {
-    const initials = name
-      .split(/\s+/)
-      .slice(0, 2)
-      .map(w => w[0]?.toUpperCase() || '')
-      .join('');
-
+    const ini = name.split(/\s+/).slice(0,2).map(w=>w[0]?.toUpperCase()||'').join('');
     document.title = name ? `${name} — Profile` : 'Profile';
-
     card.innerHTML = `
-      <div class="scan-badge"><span class="dot"></span> Verified Profile</div>
-      <div class="avatar">${initials || '?'}</div>
-      <div class="name">${escapeHtml(name) || '—'}</div>
-      <div class="email-row" onclick="copyEmail()">
-        <span class="email-icon">✉</span>
-        <span class="email-text">${escapeHtml(email) || '—'}</span>
+      <div class="scan-tag"><span class="pulse-dot"></span> Verified Profile</div>
+      <div class="avatar">${ini || '?'}</div>
+      <div class="name">${esc(name) || '—'}</div>
+      <div class="role-line">Registered User</div>
+      <div class="email-box" onclick="copyEmail()">
+        <div class="email-icon">✉</div>
+        <span class="email-text">${esc(email) || '—'}</span>
         <span class="copy-hint">tap to copy</span>
       </div>
       <div class="divider"></div>
-      <div class="meta">
-        QR·ID System · Scanned ${new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'})}
-      </div>
-    `;
+      <div class="footer-meta">
+        QR·ID System &nbsp;·&nbsp; Scanned ${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}
+      </div>`;
   }
 
   function copyEmail() {
     if (!email) return;
     navigator.clipboard.writeText(email).then(() => {
-      const p = document.getElementById('pill');
-      p.classList.add('show');
-      setTimeout(() => p.classList.remove('show'), 2000);
+      const pl = document.getElementById('pill');
+      pl.classList.add('show');
+      setTimeout(() => pl.classList.remove('show'), 2000);
     });
   }
 
-  function escapeHtml(s) {
+  function esc(s) {
     return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 </script>
