@@ -35,7 +35,6 @@
     overflow-x: hidden;
   }
 
-  /* Diagonal background accent - matches reference image */
   body::before {
     content: '';
     position: fixed;
@@ -49,7 +48,6 @@
     pointer-events: none;
   }
 
-  /* ── Header ── */
   header {
     background: var(--white);
     border-bottom: 1px solid var(--border);
@@ -71,9 +69,6 @@
   }
   .logo span { color: var(--accent); }
 
-  nav { display: none; }
-
-  /* ── Hero ── */
   .hero {
     max-width: 1200px;
     margin: 0 auto;
@@ -114,7 +109,6 @@
     line-height: 1.75;
   }
 
-  /* ── Main ── */
   main {
     max-width: 1200px;
     margin: 0 auto;
@@ -301,7 +295,6 @@
   .m-rm { background:none; border:none; color:#d0cce8; font-size:18px; cursor:pointer; transition:color .2s; line-height:1; }
   .m-rm:hover { color:#e04; }
 
-  /* ── Results ── */
   #results { display: none; }
 
   .res-header {
@@ -417,7 +410,6 @@
   .c-btn:hover { border-color: var(--purple); color: var(--purple); background: var(--purple-light); }
   .c-btn.b:hover { border-color: var(--accent); color: var(--accent-dark); background: rgba(27,184,240,.08); }
 
-  /* Toast */
   #toast {
     position: fixed;
     bottom: 30px; left: 50%;
@@ -447,11 +439,6 @@
 
 <header>
   <div class="logo">QR<span>/</span>ID</div>
-  <nav>
-    <a href="#">About</a>
-    <a href="#">Categories</a>
-    <a href="#">Promo</a>
-  </nav>
 </header>
 
 <div class="hero">
@@ -465,8 +452,8 @@
 
     <div class="panel">
       <div class="panel-title">Paste User List</div>
-      <textarea id="bulkInput" placeholder="Ahmed Al-Rashid, ahmed@company.com&#10;Sara Johnson, sara@example.com&#10;Mohammed Al-Farsi, mfarsi@work.net"></textarea>
-      <p class="hint">One user per line: <code>Name, <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="eb8e868a8287ab8a8f8f998e9898c5888486">[email&#160;protected]</a></code><br>Supports comma, tab, or pipe ( | ) separators.</p>
+      <textarea id="bulkInput" placeholder="Name, email&#10;Name, email&#10;Name, email"></textarea>
+      <p class="hint">One user per line: <code>Name, email</code><br>Supports comma, tab, or pipe ( | ) separators.</p>
     </div>
 
     <div class="panel">
@@ -500,135 +487,6 @@
 
 <div id="toast">✓ Copied to clipboard</div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-let manual = [];
-let lastGenerated = [];
-
-function addManual() {
-  const n = document.getElementById('mName').value.trim();
-  const e = document.getElementById('mEmail').value.trim();
-  if (!n || !e) return;
-  manual.push({name:n, email:e});
-  document.getElementById('mName').value = '';
-  document.getElementById('mEmail').value = '';
-  renderManual();
-}
-
-function renderManual() {
-  document.getElementById('manualList').innerHTML = manual.map((u,i) => `
-    <div class="m-item">
-      <div><div class="m-name">${h(u.name)}</div><div class="m-email">${h(u.email)}</div></div>
-      <button class="m-rm" onclick="manual.splice(${i},1);renderManual()">×</button>
-    </div>`).join('');
-}
-
-function parseBulk() {
-  return document.getElementById('bulkInput').value.trim()
-    .split('\n').map(l=>l.trim()).filter(Boolean)
-    .map(l => { const p=l.split(/[,|\t]/).map(s=>s.trim()); return p.length>=2?{name:p[0],email:p[1]}:null; })
-    .filter(Boolean);
-}
-
-function generateAll() {
-  const all = [...parseBulk(), ...manual];
-  if (!all.length) { alert('Please add at least one user.'); return; }
-  const grid = document.getElementById('cardsGrid');
-  grid.innerHTML = '';
-  document.getElementById('results').style.display = 'block';
-  document.getElementById('cntBadge').textContent = `${all.length} user${all.length!==1?'s':''}`;
-
-  lastGenerated = all;
-
-  all.forEach((u, i) => {
-    const url = buildUrl(u.name, u.email);
-    const ini = u.name.split(/\s+/).slice(0,2).map(w=>w[0]?.toUpperCase()||'').join('');
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.style.animationDelay = `${i*0.05}s`;
-    card.innerHTML = `
-      <div class="c-av">${ini}</div>
-      <div class="c-name">${h(u.name)}</div>
-      <div class="c-email">${h(u.email)}</div>
-      <div class="qr-wrap" id="qr-${i}"></div>
-      <div class="c-link" onclick="cp('${esc(url)}')"><span>⎘</span><span>${url}</span></div>
-      <div class="c-acts">
-        <button class="c-btn b" onclick="cp('${esc(url)}')">Copy link</button>
-        <button class="c-btn b" onclick="window.open('${esc(url)}','_blank')">Open page</button>
-        <button class="c-btn" onclick="dlQR(${i},'${esc(u.name)}')">Download QR</button>
-      </div>`;
-    grid.appendChild(card);
-    setTimeout(() => new QRCode(document.getElementById(`qr-${i}`), {
-      text: url, width:110, height:110, colorDark:'#3d2d8e', colorLight:'#ffffff',
-      correctLevel: QRCode.CorrectLevel.H
-    }), 60);
-  });
-  document.getElementById('results').scrollIntoView({behavior:'smooth', block:'start'});
-}
-
-function buildUrl(name, email) {
-  const base = window.location.href.replace('index.html','').replace(/\/$/,'');
-  return `${base}/profile.html?${new URLSearchParams({name,email})}`;
-}
-
-function cp(url) {
-  navigator.clipboard.writeText(url).then(() => {
-    const t = document.getElementById('toast');
-    t.classList.add('show');
-    setTimeout(()=>t.classList.remove('show'), 2000);
-  });
-}
-
-function dlQR(i, name) {
-  const c = document.getElementById(`qr-${i}`).querySelector('canvas');
-  if (!c) return;
-  const a = document.createElement('a');
-  a.download = `qr-${name.replace(/\s+/g,'-')}.png`;
-  a.href = c.toDataURL(); a.click();
-}
-
-function exportExcel() {
-  if (!lastGenerated.length) return;
-
-  const rows = lastGenerated.map(u => ({
-    'Name': u.name,
-    'Email': u.email,
-    'QR Code Link': buildUrl(u.name, u.email)
-  }));
-
-  const ws = XLSX.utils.json_to_sheet(rows);
-
-  // Column widths
-  ws['!cols'] = [{ wch: 30 }, { wch: 36 }, { wch: 80 }];
-
-  // Style header row (bold + blue background)
-  const headerStyle = {
-    font: { bold: true, color: { rgb: 'FFFFFF' }, name: 'Arial', sz: 11 },
-    fill: { patternType: 'solid', fgColor: { rgb: '3D2D8E' } },
-    alignment: { horizontal: 'center', vertical: 'center' },
-    border: {
-      bottom: { style: 'thin', color: { rgb: 'FFFFFF' } }
-    }
-  };
-
-  ['A1','B1','C1'].forEach(cell => {
-    if (ws[cell]) ws[cell].s = headerStyle;
-  });
-
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'QR Codes');
-  XLSX.writeFile(wb, 'QR_Users.xlsx');
-
-  const t = document.getElementById('toast');
-  t.textContent = '✓ Excel downloaded!';
-  t.classList.add('show');
-  setTimeout(() => { t.classList.remove('show'); t.textContent = '✓ Copied to clipboard'; }, 2200);
-}
-
-function clearAll() {
-  manual = []; renderManual();
-  document.getElementById('bulkInput').value = '';
-  document.getElementById('results').style.display = 'none';
-}
-
-function h(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function esc(s)
+<script src="app.js"></script>
+</body>
+</html>
