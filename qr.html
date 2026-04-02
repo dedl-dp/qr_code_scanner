@@ -161,9 +161,8 @@
   } else {
     document.title = 'QR Code — ' + name;
 
-    // Build the profile URL that the QR encodes
-    var base = window.location.href.replace('qr.html','').replace(/\/$/,'');
-    var profileUrl = base + '/profile.html?' + new URLSearchParams({ name: name, email: email }).toString();
+    // Swap qr.html → profile.html keeping the exact same query string (avoids double-encoding)
+    var profileUrl = window.location.href.replace('qr.html', 'profile.html');
 
     card.innerHTML =
       '<div class="label">📷 QR Code</div>' +
