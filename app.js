@@ -41,7 +41,7 @@ function generateAll() {
   lastGenerated = all;
 
   all.forEach(function(u, i) {
-    var url = buildUrl(u.name, u.email);
+    var profileUrl = buildProfileUrl(u.name, u.email);
     var ini = u.name.split(/\s+/).slice(0, 2).map(function(w) { return w[0] ? w[0].toUpperCase() : ''; }).join('');
     var card = document.createElement('div');
     card.className = 'card';
@@ -51,17 +51,17 @@ function generateAll() {
       '<div class="c-name">' + h(u.name) + '</div>' +
       '<div class="c-email">' + h(u.email) + '</div>' +
       '<div class="qr-wrap" id="qr-' + i + '"></div>' +
-      '<div class="c-link" onclick="cp(this.dataset.url)" data-url="' + encodeURIComponent(url) + '"><span>⎘</span><span>' + h(url) + '</span></div>' +
+      '<div class="c-link" onclick="cp(this.dataset.url)" data-url="' + encodeURIComponent(profileUrl) + '"><span>⎘</span><span>' + h(profileUrl) + '</span></div>' +
       '<div class="c-acts">' +
-        '<button class="c-btn b" onclick="cp(this.dataset.url)" data-url="' + encodeURIComponent(url) + '">Copy link</button>' +
-        '<button class="c-btn b" onclick="window.open(decodeURIComponent(this.dataset.url),\'_blank\')" data-url="' + encodeURIComponent(url) + '">Open page</button>' +
-        '<button class="c-btn" onclick="dlQR(' + i + ',this.dataset.name)" data-name="' + encodeURIComponent(u.name) + '">Download QR</button>' +
+        '<button class="c-btn b" onclick="cp(this.dataset.url)" data-url="' + encodeURIComponent(profileUrl) + '">Copy link</button>' +
+        '<button class="c-btn b" onclick="window.open(decodeURIComponent(this.dataset.url),\'_blank\')" data-url="' + encodeURIComponent(profileUrl) + '">Open page</button>' +
+        '<button class="c-btn" onclick="dlQR(' + i + ',this.dataset.name)" data-name="' + encodeURIComponent(u.name) + '">⬇ QR</button>' +
       '</div>';
     grid.appendChild(card);
     (function(idx) {
       setTimeout(function() {
         new QRCode(document.getElementById('qr-' + idx), {
-          text: url, width: 110, height: 110,
+          text: profileUrl, width: 110, height: 110,
           colorDark: '#3d2d8e', colorLight: '#ffffff',
           correctLevel: QRCode.CorrectLevel.H
         });
@@ -72,9 +72,16 @@ function generateAll() {
   document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-function buildUrl(name, email) {
+// Profile page URL — what the QR encodes and what scanning opens
+function buildProfileUrl(name, email) {
   var base = window.location.href.replace('index.html', '').replace(/\/$/, '');
   return base + '/profile.html?' + new URLSearchParams({ name: name, email: email }).toString();
+}
+
+// QR page URL — what the Excel link opens (shows + lets user download the QR image)
+function buildQRPageUrl(name, email) {
+  var base = window.location.href.replace('index.html', '').replace(/\/$/, '');
+  return base + '/qr.html?' + new URLSearchParams({ name: name, email: email }).toString();
 }
 
 function cp(encodedUrl) {
@@ -87,41 +94,36 @@ function cp(encodedUrl) {
 function dlQR(i, encodedName) {
   var name = decodeURIComponent(encodedName);
   var c = document.getElementById('qr-' + i).querySelector('canvas');
-  if (!c) return;
+  if (!c) { showToast('QR not ready, try again'); return; }
   var a = document.createElement('a');
-  a.download = 'qr-' + name.replace(/\s+/g, '-') + '.png';
-  a.href = c.toDataURL();
+  a.download = name.replace(/\s+/g, '_') + '_QR.png';
+  a.href = c.toDataURL('image/png');
   a.click();
-}
-
-function getQRDataUrl(i) {
-  var wrap = document.getElementById('qr-' + i);
-  if (!wrap) return '';
-  var canvas = wrap.querySelector('canvas');
-  if (canvas) return canvas.toDataURL('image/png');
-  // fallback: img tag (some browsers render img instead of canvas)
-  var img = wrap.querySelector('img');
-  if (img) return img.src;
-  return '';
 }
 
 function exportExcel() {
   if (!lastGenerated.length) return;
 
-  // Build rows - QR Code column contains the data URL of the QR image
+  // Header row
   var wsData = [['Name', 'Email', 'QR Code']];
 
-  lastGenerated.forEach(function(u, i) {
-    var qrDataUrl = getQRDataUrl(i);
-    wsData.push([u.name, u.email, qrDataUrl ? 'Click to view QR' : 'QR not ready']);
+  // Each row: Name, Email, HYPERLINK to qr.html?name=...&email=...
+  // Clicking opens a page that shows the QR image with a Download button
+  lastGenerated.forEach(function(u) {
+    var qrPageUrl = buildQRPageUrl(u.name, u.email);
+    wsData.push([
+      u.name,
+      u.email,
+      { f: 'HYPERLINK("' + qrPageUrl + '","📷 View & Download QR")' }
+    ]);
   });
 
   var ws = XLSX.utils.aoa_to_sheet(wsData);
 
-  // Set column widths
-  ws['!cols'] = [{ wch: 30 }, { wch: 36 }, { wch: 22 }];
+  // Column widths
+  ws['!cols'] = [{ wch: 30 }, { wch: 36 }, { wch: 28 }];
 
-  // Header style
+  // Header style — dark purple
   var headerStyle = {
     font: { bold: true, color: { rgb: 'FFFFFF' }, name: 'Arial', sz: 11 },
     fill: { patternType: 'solid', fgColor: { rgb: '3D2D8E' } },
@@ -131,17 +133,13 @@ function exportExcel() {
     if (ws[cell]) ws[cell].s = headerStyle;
   });
 
-  // Add QR image data URL as a hyperlink on each QR cell
-  // The link Target is the data URL itself — clicking it opens the image in browser
+  // Link cell style — blue underline
   lastGenerated.forEach(function(u, i) {
-    var rowNum = i + 2;
-    var cellRef = 'C' + rowNum;
-    var qrDataUrl = getQRDataUrl(i);
-    if (qrDataUrl && ws[cellRef]) {
-      ws[cellRef].l = { Target: qrDataUrl, Tooltip: 'QR Code for ' + u.name };
+    var cellRef = 'C' + (i + 2);
+    if (ws[cellRef]) {
       ws[cellRef].s = {
-        font: { color: { rgb: '0090CC' }, underline: true, name: 'Arial', sz: 11 },
-        alignment: { horizontal: 'center' }
+        font: { color: { rgb: '0563C1' }, underline: true, name: 'Arial', sz: 11 },
+        alignment: { horizontal: 'center', vertical: 'center' }
       };
     }
   });
