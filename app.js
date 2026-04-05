@@ -200,9 +200,9 @@ function renderResults(users) {
 }
 
 function generateQRFor(el) {
-  if (el.dataset.generated) return;
+  if (el.dataset.generated === '1') return;
   el.dataset.generated = '1';
-  el.innerHTML = ''; // clear any spinner/broken state
+  el.innerHTML = '';
   try {
     new QRCode(el, {
       text: el.dataset.url,
@@ -211,11 +211,66 @@ function generateQRFor(el) {
       colorLight: '#ffffff',
       correctLevel: QRCode.CorrectLevel.H
     });
+    // After a short delay check if QR actually rendered (canvas or img present)
+    setTimeout(function() {
+      var hasContent = el.querySelector('canvas') || el.querySelector('img');
+      if (!hasContent) {
+        el.dataset.generated = 'failed';
+        showRetryButton(el);
+      }
+    }, 500);
   } catch(e) {
-    el.dataset.generated = ''; // allow retry
-    console.warn('QR generation failed, will retry', e);
+    el.dataset.generated = 'failed';
+    showRetryButton(el);
+    console.warn('QR generation failed:', e);
   }
 }
+
+function showRetryButton(el) {
+  el.innerHTML =
+    '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;' +
+    'width:110px;height:110px;background:#fef3f2;border-radius:8px;gap:6px;">' +
+      '<span style="font-size:22px;">⚠️</span>' +
+      '<span style="font-size:9px;color:#c0392b;font-weight:600;text-align:center;line-height:1.3;">Failed to load</span>' +
+      '<button onclick="retryQR(this.parentElement.parentElement)" ' +
+        'style="background:#c0392b;color:#fff;border:none;border-radius:6px;' +
+        'padding:4px 10px;font-size:10px;font-weight:700;cursor:pointer;' +
+        'font-family:Nunito,sans-serif;">↺ Retry</button>' +
+    '</div>';
+  // Show the "Retry All Failed" button in the header
+  var retryAllBtn = document.getElementById('retryAllBtn');
+  if (retryAllBtn) retryAllBtn.style.display = 'inline-flex';
+}
+
+function retryQR(el) {
+  el.dataset.generated = '';
+  el.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;width:110px;height:110px;"><div class=\'qr-spinner\'></div></div>';
+  setTimeout(function() { generateQRFor(el); }, 100);
+}
+window.retryQR = retryQR;
+
+// Retry all failed QR codes at once
+function retryAllFailed() {
+  var failed = document.querySelectorAll('.qr-wrap[data-generated="failed"]');
+  if (!failed.length) { showToast('No failed QR codes found'); return; }
+  showToast('↺ Retrying ' + failed.length + ' QR code' + (failed.length !== 1 ? 's' : '') + '...');
+  failed.forEach(function(el, i) {
+    setTimeout(function() {
+      el.dataset.generated = '';
+      el.innerHTML = '';
+      generateQRFor(el);
+    }, i * 120);
+  });
+  // Hide retry all button after a delay if all succeed
+  setTimeout(function() {
+    var stillFailed = document.querySelectorAll('.qr-wrap[data-generated="failed"]');
+    if (!stillFailed.length) {
+      var btn = document.getElementById('retryAllBtn');
+      if (btn) btn.style.display = 'none';
+    }
+  }, failed.length * 120 + 1500);
+}
+window.retryAllFailed = retryAllFailed;
 
 function lazyGenerateQRCodes() {
   var elements = Array.prototype.slice.call(document.querySelectorAll('.qr-wrap[data-url]'));
