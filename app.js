@@ -146,9 +146,9 @@ function renderResults(users) {
   document.getElementById('cntBadge').textContent = users.length + ' user' + (users.length !== 1 ? 's' : '');
 
   users.forEach(function (u, i) {
-    var profileUrl = buildProfileUrl(u.name, u.email);
-    var ini = u.name.split(/\s+/).slice(0, 2).map(function (w) { return w[0] ? w[0].toUpperCase() : ''; }).join('');
     var fid = u.firestoreId || '';
+    var profileUrl = buildProfileUrl(u.name, u.email, fid);
+    var ini = u.name.split(/\s+/).slice(0, 2).map(function (w) { return w[0] ? w[0].toUpperCase() : ''; }).join('');
 
     // ── QR card ──
     var card = document.createElement('div');
@@ -332,13 +332,20 @@ async function deleteUser(firestoreId, btn) {
 window.deleteUser = deleteUser;
 
 // ── URL builders ──────────────────────────────────────────────────────────────
-function buildProfileUrl(name, email) {
+// Use Firestore ID in QR to keep URL short (avoids Arabic encoding failure)
+function buildProfileUrl(name, email, firestoreId) {
   var base = window.location.href.replace('index.html', '').replace(/\/$/, '');
+  if (firestoreId) {
+    return base + '/profile.html?id=' + firestoreId;
+  }
   return base + '/profile.html?' + new URLSearchParams({ name: name, email: email }).toString();
 }
 
-function buildQRPageUrl(name, email) {
+function buildQRPageUrl(name, email, firestoreId) {
   var base = window.location.href.replace('index.html', '').replace(/\/$/, '');
+  if (firestoreId) {
+    return base + '/qr.html?id=' + firestoreId;
+  }
   return base + '/qr.html?' + new URLSearchParams({ name: name, email: email }).toString();
 }
 
@@ -379,7 +386,7 @@ function exportExcel() {
   if (!lastGenerated.length) return;
   var wsData = [['Name', 'Email', 'QR Code']];
   lastGenerated.forEach(function (u) {
-    var qrPageUrl = buildQRPageUrl(u.name, u.email);
+    var qrPageUrl = buildQRPageUrl(u.name, u.email, u.firestoreId);
     wsData.push([u.name, u.email, { f: 'HYPERLINK("' + qrPageUrl + '","📷 View & Download QR")' }]);
   });
   var ws = XLSX.utils.aoa_to_sheet(wsData);
