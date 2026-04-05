@@ -9,192 +9,184 @@
   @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Poppins:wght@400;500&display=swap');
 
   :root {
-    --bg: #f4f3fc;
-    --white: #ffffff;
-    --border: #dddaf2;
-    --accent: #1bb8f0;
-    --purple: #7b6fba;
-    --purple-light: #eae8f7;
-    --navy: #2b1f72;
-    --muted: #8e8aac;
-    --shadow: rgba(123,111,186,0.15);
+    --bg: #f4f3fc; --white: #ffffff; --border: #dddaf2;
+    --accent: #1bb8f0; --purple: #7b6fba; --purple-light: #eae8f7;
+    --navy: #2b1f72; --muted: #8e8aac; --shadow: rgba(123,111,186,0.15);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    background: var(--bg);
-    font-family: 'Poppins', sans-serif;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
+    background: var(--bg); font-family: 'Poppins', sans-serif;
+    min-height: 100vh; display: flex; align-items: center;
+    justify-content: center; position: relative; overflow: hidden;
   }
 
   body::before {
-    content: '';
-    position: fixed;
-    top: 0; right: 0;
-    width: 55%;
-    height: 100%;
+    content: ''; position: fixed; top:0; right:0; width:55%; height:100%;
     background: linear-gradient(150deg, #b3aae0 0%, #8776cc 50%, #6554b8 100%);
     clip-path: polygon(20% 0%, 100% 0%, 100% 100%, 0% 100%);
-    z-index: 0;
-    opacity: 0.13;
-    pointer-events: none;
+    z-index:0; opacity:0.13; pointer-events:none;
   }
 
   .card {
-    position: relative;
-    z-index: 1;
-    background: var(--white);
-    border: 1.5px solid var(--border);
-    border-radius: 28px;
-    padding: 44px 40px 36px;
-    max-width: 360px;
-    width: 90%;
-    text-align: center;
-    box-shadow: 0 20px 60px var(--shadow);
-    animation: appear 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+    position:relative; z-index:1; background:var(--white);
+    border:1.5px solid var(--border); border-radius:28px;
+    padding:44px 40px 36px; max-width:360px; width:90%; text-align:center;
+    box-shadow:0 20px 60px var(--shadow);
+    animation:appear 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
   }
-
   .card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, var(--accent), var(--purple), var(--navy));
-    border-radius: 28px 28px 0 0;
+    content:''; position:absolute; top:0; left:0; right:0; height:4px;
+    background:linear-gradient(90deg, var(--accent), var(--purple), var(--navy));
+    border-radius:28px 28px 0 0;
   }
-
-  @keyframes appear {
-    from { opacity: 0; transform: translateY(24px) scale(0.95); }
-    to   { opacity: 1; transform: none; }
-  }
+  @keyframes appear { from{opacity:0;transform:translateY(24px) scale(0.95);} to{opacity:1;transform:none;} }
 
   .label {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: var(--purple-light);
-    color: var(--purple);
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    padding: 5px 13px;
-    border-radius: 20px;
-    margin-bottom: 20px;
+    display:inline-flex; align-items:center; gap:6px;
+    background:var(--purple-light); color:var(--purple);
+    font-size:10px; font-weight:700; letter-spacing:0.15em; text-transform:uppercase;
+    padding:5px 13px; border-radius:20px; margin-bottom:20px;
   }
 
-  .name {
-    font-family: 'Nunito', sans-serif;
-    font-weight: 900;
-    font-size: 22px;
-    color: var(--navy);
-    margin-bottom: 4px;
-    letter-spacing: -0.01em;
-  }
-
-  .email {
-    font-size: 12px;
-    color: var(--muted);
-    margin-bottom: 24px;
-    word-break: break-all;
-  }
+  .name { font-family:'Nunito',sans-serif; font-weight:900; font-size:22px; color:var(--navy); margin-bottom:4px; }
+  .email { font-size:12px; color:var(--muted); margin-bottom:24px; word-break:break-all; }
 
   .qr-box {
-    background: #fff;
-    border: 2px solid var(--border);
-    border-radius: 16px;
-    padding: 14px;
-    display: inline-block;
-    margin-bottom: 24px;
-    box-shadow: 0 4px 16px var(--shadow);
+    background:#fff; border:2px solid var(--border); border-radius:16px;
+    padding:14px; display:inline-block; margin-bottom:24px;
+    box-shadow:0 4px 16px var(--shadow);
   }
-
-  .qr-box canvas, .qr-box img {
-    display: block;
-    width: 180px !important;
-    height: 180px !important;
-  }
+  .qr-box canvas, .qr-box img { display:block; width:180px !important; height:180px !important; }
 
   .btn-download {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: linear-gradient(135deg, var(--navy), var(--purple));
-    color: #fff;
-    font-family: 'Nunito', sans-serif;
-    font-weight: 800;
-    font-size: 14px;
-    padding: 13px 28px;
-    border-radius: 14px;
-    border: none;
-    cursor: pointer;
-    transition: all 0.22s;
-    box-shadow: 0 6px 20px rgba(61,45,142,0.3);
-    text-decoration: none;
-    letter-spacing: 0.03em;
+    display:inline-flex; align-items:center; gap:8px;
+    background:linear-gradient(135deg, var(--navy), var(--purple));
+    color:#fff; font-family:'Nunito',sans-serif; font-weight:800; font-size:14px;
+    padding:13px 28px; border-radius:14px; border:none; cursor:pointer;
+    transition:all 0.22s; box-shadow:0 6px 20px rgba(61,45,142,0.3);
+    letter-spacing:0.03em;
   }
-  .btn-download:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(61,45,142,0.4); }
+  .btn-download:hover { transform:translateY(-2px); box-shadow:0 10px 28px rgba(61,45,142,0.4); }
 
-  .error-state { padding: 20px; }
-  .err-icon { font-size: 44px; margin-bottom: 12px; }
+  .spinner {
+    width:40px; height:40px; border:3px solid var(--border);
+    border-top-color:var(--purple); border-radius:50%;
+    animation:spin 0.8s linear infinite; margin:20px auto;
+  }
+  @keyframes spin { to{transform:rotate(360deg);} }
+
+  .error-state { padding:20px; }
+  .err-icon { font-size:44px; margin-bottom:12px; }
   .err-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:18px; color:var(--navy); margin-bottom:6px; }
   .err-msg { font-size:12px; color:var(--muted); }
 </style>
 </head>
 <body>
-<div class="card" id="card"></div>
+<div class="card" id="card">
+  <div class="spinner"></div>
+</div>
 
-<script>
-  var params = new URLSearchParams(window.location.search);
-  var name  = params.get('name')  || '';
-  var email = params.get('email') || '';
-  var card  = document.getElementById('card');
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  if (!name && !email) {
-    card.innerHTML = '<div class="error-state"><div class="err-icon">⚠️</div><div class="err-title">No data found</div><p class="err-msg">Please open this link from the Excel file.</p></div>';
-  } else {
-    document.title = 'QR Code — ' + name;
+  const firebaseConfig = {
+    apiKey: "AIzaSyB1WexCYb3BFkr4PnQo32n1lSJjzer2S-0",
+    authDomain: "qr-id-system-34cec.firebaseapp.com",
+    projectId: "qr-id-system-34cec",
+    storageBucket: "qr-id-system-34cec.firebasestorage.app",
+    messagingSenderId: "373142412871",
+    appId: "1:373142412871:web:6d6c49b098a9e4a0389b62"
+  };
 
-    // Swap qr.html → profile.html keeping the exact same query string (avoids double-encoding)
-    var profileUrl = window.location.href.replace('qr.html', 'profile.html');
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
 
-    card.innerHTML =
+  const params = new URLSearchParams(window.location.search);
+  const id     = params.get('id');
+  const nameP  = params.get('name') || '';
+  const emailP = params.get('email') || '';
+
+  async function load() {
+    let userName = nameP, userEmail = emailP;
+
+    if (id) {
+      try {
+        const snap = await getDoc(doc(db, 'users', id));
+        if (snap.exists()) {
+          userName  = snap.data().name;
+          userEmail = snap.data().email;
+        } else {
+          showError('Not found', 'This user may have been deleted.');
+          return;
+        }
+      } catch(e) {
+        if (!userName && !userEmail) {
+          showError('Connection error', 'Could not load user data.');
+          return;
+        }
+      }
+    }
+
+    if (!userName && !userEmail) {
+      showError('No data', 'Please open this link from the Excel file.');
+      return;
+    }
+
+    renderQR(userName, userEmail);
+  }
+
+  function renderQR(userName, userEmail) {
+    document.title = 'QR Code — ' + userName;
+
+    // The profile URL to encode in QR — use short ID if available
+    const base = window.location.href.replace('qr.html','').replace(/\/$/,'');
+    const profileUrl = id
+      ? base + '/profile.html?id=' + id
+      : base + '/profile.html?' + new URLSearchParams({ name: userName, email: userEmail }).toString();
+
+    document.getElementById('card').innerHTML =
       '<div class="label">📷 QR Code</div>' +
-      '<div class="name">' + esc(name) + '</div>' +
-      '<div class="email">' + esc(email) + '</div>' +
+      '<div class="name">' + esc(userName) + '</div>' +
+      '<div class="email">' + esc(userEmail) + '</div>' +
       '<div class="qr-box" id="qrTarget"></div>' +
       '<br>' +
       '<button class="btn-download" onclick="downloadQR()">⬇ Download QR Image</button>';
 
-    // Generate QR
     new QRCode(document.getElementById('qrTarget'), {
-      text: profileUrl,
-      width: 180,
-      height: 180,
-      colorDark: '#3d2d8e',
-      colorLight: '#ffffff',
+      text: profileUrl, width: 180, height: 180,
+      colorDark: '#3d2d8e', colorLight: '#ffffff',
       correctLevel: QRCode.CorrectLevel.H
     });
+
+    window._qrName = userName;
   }
 
-  function downloadQR() {
-    var canvas = document.querySelector('#qrTarget canvas');
-    if (!canvas) { alert('QR not ready yet, try again in a moment.'); return; }
-    var a = document.createElement('a');
-    a.download = name.replace(/\s+/g, '_') + '_QR.png';
+  function showError(title, msg) {
+    document.getElementById('card').innerHTML =
+      '<div class="error-state">' +
+        '<div class="err-icon">⚠️</div>' +
+        '<div class="err-title">' + esc(title) + '</div>' +
+        '<p class="err-msg">' + esc(msg) + '</p>' +
+      '</div>';
+  }
+
+  window.downloadQR = function() {
+    const canvas = document.querySelector('#qrTarget canvas');
+    if (!canvas) { alert('QR not ready, try again in a moment.'); return; }
+    const a = document.createElement('a');
+    a.download = (window._qrName || 'user').replace(/\s+/g, '_') + '_QR.png';
     a.href = canvas.toDataURL('image/png');
     a.click();
-  }
+  };
 
   function esc(s) {
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
+
+  load();
 </script>
 </body>
 </html>
