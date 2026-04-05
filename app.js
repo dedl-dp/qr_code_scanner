@@ -199,45 +199,65 @@ function renderResults(users) {
   lazyGenerateQRCodes();
 }
 
-function lazyGenerateQRCodes() {
-  var elements = document.querySelectorAll('.qr-wrap[data-url]');
-
-  if ('IntersectionObserver' in window) {
-    var observer = new IntersectionObserver(function(entries) {
-      entries.forEach(function(entry) {
-        if (entry.isIntersecting) {
-          var el = entry.target;
-          if (!el.dataset.generated) {
-            el.dataset.generated = '1';
-            new QRCode(el, {
-              text: el.dataset.url, width: 110, height: 110,
-              colorDark: '#3d2d8e', colorLight: '#ffffff',
-              correctLevel: QRCode.CorrectLevel.H
-            });
-          }
-          observer.unobserve(el);
-        }
-      });
-    }, { rootMargin: '200px' }); // start generating 200px before visible
-
-    elements.forEach(function(el) { observer.observe(el); });
-  } else {
-    // Fallback: stagger generation with increasing delays
-    elements.forEach(function(el, i) {
-      (function(elem, delay) {
-        setTimeout(function() {
-          if (!elem.dataset.generated) {
-            elem.dataset.generated = '1';
-            new QRCode(elem, {
-              text: elem.dataset.url, width: 110, height: 110,
-              colorDark: '#3d2d8e', colorLight: '#ffffff',
-              correctLevel: QRCode.CorrectLevel.H
-            });
-          }
-        }, delay);
-      })(el, i * 80);
+function generateQRFor(el) {
+  if (el.dataset.generated) return;
+  el.dataset.generated = '1';
+  el.innerHTML = ''; // clear any spinner/broken state
+  try {
+    new QRCode(el, {
+      text: el.dataset.url,
+      width: 110, height: 110,
+      colorDark: '#3d2d8e',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.H
     });
+  } catch(e) {
+    el.dataset.generated = ''; // allow retry
+    console.warn('QR generation failed, will retry', e);
   }
+}
+
+function lazyGenerateQRCodes() {
+  var elements = Array.prototype.slice.call(document.querySelectorAll('.qr-wrap[data-url]'));
+  if (!elements.length) return;
+
+  // Batch generator: process N at a time with a small delay between batches
+  var BATCH = 8;
+  var delay = 0;
+
+  for (var start = 0; start < elements.length; start += BATCH) {
+    (function(batch, d) {
+      setTimeout(function() {
+        batch.forEach(function(el) {
+          // Only generate if not already done and visible (or close to viewport)
+          var rect = el.getBoundingClientRect();
+          var inOrNear = rect.top < window.innerHeight + 600;
+          if (inOrNear) {
+            generateQRFor(el);
+          } else {
+            // Will be picked up by scroll listener
+          }
+        });
+      }, d);
+    })(elements.slice(start, start + BATCH), delay);
+    delay += 150;
+  }
+
+  // Scroll listener generates QRs as user scrolls down
+  var scrollHandler = function() {
+    var pending = document.querySelectorAll('.qr-wrap[data-url]:not([data-generated])');
+    pending.forEach(function(el) {
+      var rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight + 400) {
+        generateQRFor(el);
+      }
+    });
+    // Clean up if all done
+    if (!document.querySelector('.qr-wrap[data-url]:not([data-generated])')) {
+      window.removeEventListener('scroll', scrollHandler);
+    }
+  };
+  window.addEventListener('scroll', scrollHandler, { passive: true });
 }
 window.lazyGenerateQRCodes = lazyGenerateQRCodes;
 
@@ -280,16 +300,10 @@ function dlQR(i, encodedName) {
   var name = decodeURIComponent(encodedName);
   var wrap = document.getElementById('qr-' + i);
 
-  // If QR not yet generated (lazy), generate it now then download
+  // If QR not yet generated, generate it first then download
   if (!wrap.dataset.generated && wrap.dataset.url) {
-    wrap.dataset.generated = '1';
-    new QRCode(wrap, {
-      text: wrap.dataset.url, width: 110, height: 110,
-      colorDark: '#3d2d8e', colorLight: '#ffffff',
-      correctLevel: QRCode.CorrectLevel.H
-    });
-    // Wait a moment for canvas to render
-    setTimeout(function() { doDownload(wrap, name); }, 300);
+    generateQRFor(wrap);
+    setTimeout(function() { doDownload(wrap, name); }, 400);
     return;
   }
   doDownload(wrap, name);
