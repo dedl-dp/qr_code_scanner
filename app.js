@@ -342,11 +342,8 @@ function buildProfileUrl(name, email, firestoreId) {
 }
 
 function buildQRPageUrl(name, email, firestoreId) {
-  var base = window.location.href.replace('index.html', '').replace(/\/$/, '');
-  if (firestoreId) {
-    return base + '/qr.html?id=' + firestoreId;
-  }
-  return base + '/qr.html?' + new URLSearchParams({ name: name, email: email }).toString();
+  // Now points to profile.html which shows profile + QR download in one page
+  return buildProfileUrl(name, email, firestoreId);
 }
 
 // ── Clipboard ─────────────────────────────────────────────────────────────────
