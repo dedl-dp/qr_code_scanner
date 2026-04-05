@@ -186,21 +186,60 @@ function renderResults(users) {
       '<a class="p-open-btn" href="' + profileUrl + '" target="_blank">↗ Open Profile Page</a>';
     profilesGrid.appendChild(pc);
 
-    // Generate QR
-    (function (idx) {
-      setTimeout(function () {
-        new QRCode(document.getElementById('qr-' + idx), {
-          text: profileUrl, width: 110, height: 110,
-          colorDark: '#3d2d8e', colorLight: '#ffffff',
-          correctLevel: QRCode.CorrectLevel.H
-        });
-      }, 60);
-    })(i);
+    // Mark QR wrap with the URL to generate lazily
+    var qrEl = document.getElementById('qr-' + i);
+    qrEl.dataset.url = profileUrl;
+    qrEl.dataset.idx = i;
   });
 
   document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
   switchTab('qr');
+
+  // Use IntersectionObserver to generate QR only when card is visible
+  lazyGenerateQRCodes();
 }
+
+function lazyGenerateQRCodes() {
+  var elements = document.querySelectorAll('.qr-wrap[data-url]');
+
+  if ('IntersectionObserver' in window) {
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          var el = entry.target;
+          if (!el.dataset.generated) {
+            el.dataset.generated = '1';
+            new QRCode(el, {
+              text: el.dataset.url, width: 110, height: 110,
+              colorDark: '#3d2d8e', colorLight: '#ffffff',
+              correctLevel: QRCode.CorrectLevel.H
+            });
+          }
+          observer.unobserve(el);
+        }
+      });
+    }, { rootMargin: '200px' }); // start generating 200px before visible
+
+    elements.forEach(function(el) { observer.observe(el); });
+  } else {
+    // Fallback: stagger generation with increasing delays
+    elements.forEach(function(el, i) {
+      (function(elem, delay) {
+        setTimeout(function() {
+          if (!elem.dataset.generated) {
+            elem.dataset.generated = '1';
+            new QRCode(elem, {
+              text: elem.dataset.url, width: 110, height: 110,
+              colorDark: '#3d2d8e', colorLight: '#ffffff',
+              correctLevel: QRCode.CorrectLevel.H
+            });
+          }
+        }, delay);
+      })(el, i * 80);
+    });
+  }
+}
+window.lazyGenerateQRCodes = lazyGenerateQRCodes;
 
 // ── Delete user from Firestore ────────────────────────────────────────────────
 async function deleteUser(firestoreId, btn) {
@@ -239,7 +278,25 @@ window.cp = cp;
 // ── Download single QR ────────────────────────────────────────────────────────
 function dlQR(i, encodedName) {
   var name = decodeURIComponent(encodedName);
-  var c = document.getElementById('qr-' + i).querySelector('canvas');
+  var wrap = document.getElementById('qr-' + i);
+
+  // If QR not yet generated (lazy), generate it now then download
+  if (!wrap.dataset.generated && wrap.dataset.url) {
+    wrap.dataset.generated = '1';
+    new QRCode(wrap, {
+      text: wrap.dataset.url, width: 110, height: 110,
+      colorDark: '#3d2d8e', colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.H
+    });
+    // Wait a moment for canvas to render
+    setTimeout(function() { doDownload(wrap, name); }, 300);
+    return;
+  }
+  doDownload(wrap, name);
+}
+
+function doDownload(wrap, name) {
+  var c = wrap.querySelector('canvas');
   if (!c) { showToast('QR not ready, try again'); return; }
   var a = document.createElement('a');
   a.download = name.replace(/\s+/g, '_') + '_QR.png';
@@ -270,6 +327,40 @@ function exportExcel() {
   showToast('✅ Excel downloaded!');
 }
 window.exportExcel = exportExcel;
+
+// ── Delete ALL users from Firestore ──────────────────────────────────────────
+async function deleteAllUsers() {
+  if (!lastGenerated.length) { showToast('No users to delete'); return; }
+  if (!confirm('Are you sure you want to delete ALL ' + lastGenerated.length + ' users from the database? This cannot be undone.')) return;
+
+  showToast('⏳ Deleting all users...');
+  var failed = 0;
+
+  for (var i = 0; i < lastGenerated.length; i++) {
+    var fid = lastGenerated[i].firestoreId;
+    if (fid) {
+      try {
+        await deleteDoc(doc(db, COLLECTION, fid));
+      } catch (e) {
+        failed++;
+        console.error('Failed to delete:', fid, e);
+      }
+    }
+  }
+
+  lastGenerated = [];
+  document.getElementById('cardsGrid').innerHTML = '';
+  document.getElementById('profilesGrid').innerHTML = '';
+  document.getElementById('cntBadge').textContent = '0 users';
+  document.getElementById('results').style.display = 'none';
+
+  if (failed === 0) {
+    showToast('🗑 All users deleted from database');
+  } else {
+    showToast('⚠️ Done — ' + failed + ' failed to delete');
+  }
+}
+window.deleteAllUsers = deleteAllUsers;
 
 // ── Clear local inputs only (does NOT delete from Firestore) ──────────────────
 function clearAll() {
