@@ -54,18 +54,34 @@
     padding: 0 60px;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     height: 66px;
     box-shadow: 0 2px 20px var(--shadow);
     position: relative; z-index: 10;
   }
 
-  .logo {
-    font-family: 'Nunito', sans-serif;
-    font-weight: 900;
-    font-size: 21px;
-    color: var(--purple-dark);
-  }
+  .logo { font-family:'Nunito',sans-serif; font-weight:900; font-size:21px; color:var(--purple-dark); }
   .logo span { color: var(--accent); }
+
+  .db-status {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    padding: 6px 14px;
+    border-radius: 20px;
+  }
+  .db-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #ccc;
+    transition: background 0.3s;
+  }
+  .db-dot.connected { background: #22c55e; box-shadow: 0 0 6px rgba(34,197,94,0.5); }
 
   .hero {
     max-width: 1200px;
@@ -75,28 +91,16 @@
   }
 
   .hero-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    background: var(--purple-light);
-    color: var(--purple);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    padding: 6px 14px;
-    border-radius: 20px;
-    margin-bottom: 18px;
+    display: inline-flex; align-items: center; gap: 7px;
+    background: var(--purple-light); color: var(--purple);
+    font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+    padding: 6px 14px; border-radius: 20px; margin-bottom: 18px;
   }
 
   .hero h1 {
-    font-family: 'Nunito', sans-serif;
-    font-size: clamp(30px, 4vw, 50px);
-    font-weight: 900;
-    color: var(--navy);
-    line-height: 1.1;
-    letter-spacing: -0.02em;
-    margin-bottom: 14px;
+    font-family: 'Nunito', sans-serif; font-size: clamp(30px, 4vw, 50px);
+    font-weight: 900; color: var(--navy); line-height: 1.1;
+    letter-spacing: -0.02em; margin-bottom: 14px;
   }
   .hero h1 em { font-style: normal; color: var(--accent); }
   .hero p { font-size: 14px; color: var(--muted); max-width: 440px; line-height: 1.75; }
@@ -116,48 +120,27 @@
   }
 
   .panel {
-    background: var(--white);
-    border: 1.5px solid var(--border);
-    border-radius: 22px;
-    padding: 32px;
+    background: var(--white); border: 1.5px solid var(--border);
+    border-radius: 22px; padding: 32px;
     box-shadow: 0 4px 28px var(--shadow);
   }
 
   .panel-title {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-family: 'Nunito', sans-serif;
-    font-size: 13px;
-    font-weight: 800;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--purple);
-    margin-bottom: 20px;
+    display: flex; align-items: center; gap: 10px;
+    font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 800;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--purple); margin-bottom: 20px;
   }
   .panel-title::before {
-    content: '';
-    display: block;
-    width: 4px; height: 17px;
+    content: ''; display: block; width: 4px; height: 17px;
     background: linear-gradient(180deg, var(--accent) 0%, var(--purple) 100%);
-    border-radius: 3px;
-    flex-shrink: 0;
+    border-radius: 3px; flex-shrink: 0;
   }
 
   textarea {
-    width: 100%;
-    background: var(--bg);
-    border: 1.5px solid var(--border);
-    border-radius: 14px;
-    color: var(--text);
-    font-family: 'Poppins', sans-serif;
-    font-size: 13px;
-    padding: 15px 16px;
-    resize: vertical;
-    min-height: 210px;
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    line-height: 1.85;
+    width: 100%; background: var(--bg); border: 1.5px solid var(--border);
+    border-radius: 14px; color: var(--text); font-family: 'Poppins', sans-serif;
+    font-size: 13px; padding: 15px 16px; resize: vertical; min-height: 210px;
+    outline: none; transition: border-color 0.2s, box-shadow 0.2s; line-height: 1.85;
   }
   textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(27,184,240,0.12); }
 
@@ -167,15 +150,9 @@
   .input-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
 
   input[type="text"], input[type="email"] {
-    background: var(--bg);
-    border: 1.5px solid var(--border);
-    border-radius: 12px;
-    color: var(--text);
-    font-family: 'Poppins', sans-serif;
-    font-size: 13px;
-    padding: 11px 14px;
-    outline: none;
-    width: 100%;
+    background: var(--bg); border: 1.5px solid var(--border); border-radius: 12px;
+    color: var(--text); font-family: 'Poppins', sans-serif; font-size: 13px;
+    padding: 11px 14px; outline: none; width: 100%;
     transition: border-color 0.2s, box-shadow 0.2s;
   }
   input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(27,184,240,0.12); }
@@ -230,81 +207,53 @@
   .m-rm { background:none; border:none; color:#d0cce8; font-size:18px; cursor:pointer; transition:color .2s; line-height:1; }
   .m-rm:hover { color:#e04; }
 
-  /* ── Results section ── */
+  /* Results */
   #results { display: none; }
 
   .res-header {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 0;
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 0;
   }
-
   .res-title { font-family:'Nunito',sans-serif; font-weight:900; font-size:22px; color:var(--navy); }
-
   .badge {
     background: var(--purple-light); color: var(--purple);
     font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 12px;
     padding: 5px 14px; border-radius: 20px;
   }
 
-  /* ── Tabs ── */
+  /* Tabs */
   .tabs-row {
-    display: flex;
-    align-items: center;
-    gap: 4px;
+    display: flex; align-items: center; gap: 4px;
     margin: 24px 0 28px;
-    background: var(--white);
-    border: 1.5px solid var(--border);
-    border-radius: 14px;
-    padding: 5px;
-    width: fit-content;
+    background: var(--white); border: 1.5px solid var(--border);
+    border-radius: 14px; padding: 5px; width: fit-content;
     box-shadow: 0 2px 12px var(--shadow);
   }
 
   .tab-btn {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    padding: 10px 22px;
-    border-radius: 10px;
-    border: none;
-    background: transparent;
-    font-family: 'Nunito', sans-serif;
-    font-weight: 700;
-    font-size: 13px;
-    color: var(--muted);
-    cursor: pointer;
-    transition: all 0.2s;
-    letter-spacing: 0.02em;
+    display: flex; align-items: center; gap: 7px;
+    padding: 10px 22px; border-radius: 10px; border: none;
+    background: transparent; font-family: 'Nunito', sans-serif;
+    font-weight: 700; font-size: 13px; color: var(--muted);
+    cursor: pointer; transition: all 0.2s; letter-spacing: 0.02em;
   }
-
   .tab-btn:hover { color: var(--navy); background: var(--bg); }
-
   .tab-btn.active {
     background: linear-gradient(135deg, var(--navy), var(--purple));
-    color: #fff;
-    box-shadow: 0 4px 14px rgba(61,45,142,0.25);
+    color: #fff; box-shadow: 0 4px 14px rgba(61,45,142,0.25);
   }
 
-  .tab-btn .tab-icon { font-size: 15px; }
-
-  /* ── Tab panels ── */
   .tab-panel { display: none; }
   .tab-panel.active { display: block; animation: fadeIn 0.25s ease; }
   @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
 
-  /* ── QR Cards grid ── */
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(272px, 1fr));
-    gap: 20px;
-  }
+  /* QR Cards */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(272px, 1fr)); gap: 20px; }
 
   .card {
     background: var(--white); border: 1.5px solid var(--border); border-radius: 22px;
     padding: 26px 22px 20px; box-shadow: 0 4px 18px var(--shadow);
     transition: transform 0.22s, box-shadow 0.22s, border-color 0.22s;
-    position: relative; overflow: hidden;
-    animation: cardIn 0.35s ease both;
+    position: relative; overflow: hidden; animation: cardIn 0.35s ease both;
   }
   @keyframes cardIn { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:none; } }
   .card::before {
@@ -313,6 +262,10 @@
   }
   .card:hover { transform: translateY(-5px); box-shadow: 0 14px 40px rgba(123,111,186,0.2); border-color: var(--accent); }
 
+  .card-top-row {
+    display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 0;
+  }
+
   .c-av {
     width: 44px; height: 44px; border-radius: 12px;
     background: linear-gradient(135deg, var(--accent), var(--purple));
@@ -320,6 +273,13 @@
     font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 17px;
     color: #fff; margin-bottom: 14px;
   }
+
+  .c-delete {
+    background: none; border: 1.5px solid #ffd5d5; border-radius: 8px;
+    padding: 5px 8px; font-size: 13px; cursor: pointer;
+    transition: all 0.2s; color: #e05;
+  }
+  .c-delete:hover { background: #fff0f0; border-color: #e05; transform: scale(1.05); }
 
   .c-name { font-family:'Nunito',sans-serif; font-weight:800; font-size:16px; color:var(--navy); margin-bottom:3px; }
   .c-email { font-size:11px; color:var(--muted); margin-bottom:18px; word-break:break-all; }
@@ -334,8 +294,7 @@
     display: flex; align-items: center; gap: 7px;
     background: var(--bg); border: 1.5px solid var(--border); border-radius: 10px;
     padding: 8px 12px; font-size: 10px; color: var(--muted);
-    word-break: break-all; cursor: pointer;
-    transition: border-color .2s, color .2s; margin-bottom: 12px;
+    word-break: break-all; cursor: pointer; transition: border-color .2s, color .2s; margin-bottom: 12px;
   }
   .c-link:hover { border-color: var(--accent); color: var(--accent-dark); }
 
@@ -349,34 +308,20 @@
   .c-btn:hover { border-color: var(--purple); color: var(--purple); background: var(--purple-light); }
   .c-btn.b:hover { border-color: var(--accent); color: var(--accent-dark); background: rgba(27,184,240,.08); }
 
-  /* ── Profiles tab ── */
-  .profiles-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
-  }
+  /* Profiles tab */
+  .profiles-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
 
   .profile-card {
-    background: var(--white);
-    border: 1.5px solid var(--border);
-    border-radius: 22px;
-    padding: 28px 24px;
-    box-shadow: 0 4px 18px var(--shadow);
+    background: var(--white); border: 1.5px solid var(--border); border-radius: 22px;
+    padding: 28px 24px; box-shadow: 0 4px 18px var(--shadow);
     transition: transform 0.22s, box-shadow 0.22s;
-    position: relative;
-    overflow: hidden;
-    animation: cardIn 0.35s ease both;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
+    position: relative; overflow: hidden; animation: cardIn 0.35s ease both;
+    display: flex; flex-direction: column; align-items: center; text-align: center;
   }
-
   .profile-card::before {
     content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
     background: linear-gradient(90deg, var(--accent), var(--purple), var(--navy));
   }
-
   .profile-card:hover { transform: translateY(-4px); box-shadow: 0 14px 40px rgba(123,111,186,0.2); }
 
   .p-scan-tag {
@@ -391,40 +336,30 @@
     width: 6px; height: 6px; background: var(--accent); border-radius: 50%;
     display: inline-block; animation: pulse 1.8s ease-in-out infinite;
   }
-  @keyframes pulse {
-    0%,100% { box-shadow: 0 0 0 0 rgba(27,184,240,0.5); }
-    50%      { box-shadow: 0 0 0 5px rgba(27,184,240,0); }
-  }
+  @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(27,184,240,0.5); } 50% { box-shadow: 0 0 0 5px rgba(27,184,240,0); } }
 
   .p-avatar {
     width: 72px; height: 72px; border-radius: 18px;
     background: linear-gradient(135deg, var(--accent) 0%, var(--purple) 60%, var(--navy) 100%);
     display: flex; align-items: center; justify-content: center;
     font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 26px;
-    color: #fff; margin-bottom: 16px;
-    box-shadow: 0 6px 20px rgba(27,184,240,0.25);
+    color: #fff; margin-bottom: 16px; box-shadow: 0 6px 20px rgba(27,184,240,0.25);
   }
 
-  .p-name {
-    font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 18px;
-    color: var(--navy); letter-spacing: -0.01em; margin-bottom: 6px;
-  }
+  .p-name { font-family:'Nunito',sans-serif; font-weight:900; font-size:18px; color:var(--navy); letter-spacing:-0.01em; margin-bottom:6px; }
 
   .p-email-box {
     display: flex; align-items: center; gap: 8px;
     background: var(--bg); border: 1.5px solid var(--border); border-radius: 12px;
     padding: 10px 14px; margin: 14px 0; cursor: pointer;
-    transition: border-color 0.2s, background 0.2s; width: 100%;
-    text-align: left;
+    transition: border-color 0.2s, background 0.2s; width: 100%; text-align: left;
   }
   .p-email-box:hover { border-color: var(--accent); background: rgba(27,184,240,0.04); }
 
   .p-email-icon {
     width: 30px; height: 30px; background: var(--purple-light); border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px; flex-shrink: 0; color: var(--purple);
+    display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; color: var(--purple);
   }
-
   .p-email-text { flex: 1; font-size: 12px; font-weight: 500; color: var(--text); word-break: break-all; }
   .p-copy-hint { font-size: 9px; color: var(--muted); letter-spacing: 0.07em; text-transform: uppercase; font-weight: 600; flex-shrink: 0; }
 
@@ -438,7 +373,7 @@
   }
   .p-open-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(61,45,142,0.35); }
 
-  /* ── Toast ── */
+  /* Toast */
   #toast {
     position: fixed; bottom: 30px; left: 50%;
     transform: translateX(-50%) translateY(70px);
@@ -464,12 +399,16 @@
 
 <header>
   <div class="logo">QR<span>/</span>ID</div>
+  <div class="db-status">
+    <span class="db-dot" id="dbDot"></span>
+    <span id="dbStatusText">Connecting...</span>
+  </div>
 </header>
 
 <div class="hero">
   <div class="hero-tag">⚡ QR Identity System</div>
   <h1>Generate <em>QR Codes</em><br>for your users</h1>
-  <p>Paste a list of names and emails, generate personalized QR codes and shareable profile links in seconds.</p>
+  <p>Paste a list of names and emails, generate personalized QR codes. All data is saved to Firebase automatically.</p>
 </div>
 
 <main>
@@ -489,17 +428,15 @@
       </div>
       <button class="btn btn-add" onclick="addManual()">+ Add to list</button>
       <div id="manualList"></div>
-      <button class="btn btn-gen" onclick="generateAll()">⚡ Generate QR Codes</button>
-      <button class="btn btn-clear" onclick="clearAll()">✕ Clear all</button>
+      <button class="btn btn-gen" onclick="generateAll()">⚡ Save & Generate QR Codes</button>
+      <button class="btn btn-clear" onclick="clearAll()">✕ Clear inputs</button>
     </div>
 
   </div>
 
-  <!-- Results -->
   <div id="results">
-
     <div class="res-header">
-      <div class="res-title">Results</div>
+      <div class="res-title">All Users</div>
       <div style="display:flex;align-items:center;gap:12px;">
         <span class="badge" id="cntBadge">0 users</span>
         <button class="btn-excel" onclick="exportExcel()">
@@ -509,31 +446,41 @@
       </div>
     </div>
 
-    <!-- Tab buttons -->
     <div class="tabs-row">
       <button class="tab-btn active" onclick="switchTab('qr')" id="tab-qr">
-        <span class="tab-icon">◼</span> QR Codes
+        <span>◼</span> QR Codes
       </button>
       <button class="tab-btn" onclick="switchTab('profiles')" id="tab-profiles">
-        <span class="tab-icon">👤</span> Profiles
+        <span>👤</span> Profiles
       </button>
     </div>
 
-    <!-- Tab: QR Codes -->
     <div class="tab-panel active" id="panel-qr">
       <div class="grid" id="cardsGrid"></div>
     </div>
 
-    <!-- Tab: Profiles -->
     <div class="tab-panel" id="panel-profiles">
       <div class="profiles-grid" id="profilesGrid"></div>
     </div>
-
   </div>
 </main>
 
-<div id="toast">✓ Copied to clipboard</div>
+<div id="toast">Connecting to database...</div>
 
-<script src="app.js"></script>
+<script type="module" src="app.js"></script>
+<script>
+  // Update DB status indicator after app.js connects
+  window.setDbStatus = function(connected) {
+    var dot = document.getElementById('dbDot');
+    var txt = document.getElementById('dbStatusText');
+    if (connected) {
+      dot.classList.add('connected');
+      txt.textContent = 'Database connected';
+    } else {
+      dot.classList.remove('connected');
+      txt.textContent = 'Database error';
+    }
+  };
+</script>
 </body>
 </html>
